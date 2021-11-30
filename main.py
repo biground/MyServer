@@ -29,4 +29,8 @@ def get_workday(year:int, month: int, day: int):
 
 if __name__ == "__main__":
     # app.debug = False
-    app.run()
+    with open('./config.json') as fp:
+        if (json.load(fp)["debug"]):
+            app.run()
+        else:
+            app.run(host="0.0.0.0", port="8466", debug=False)
