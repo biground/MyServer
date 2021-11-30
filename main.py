@@ -6,20 +6,20 @@ app = Flask(__name__)
 def hello():
     return "hello"
 
-@app.route('/get_workday/<int:year>/<int:month>/<int:day>')
-def get_workday(year:int, month: int, day: int):
+@app.route('/get_workday')
+def get_workday():
     now = datetime.now()
-    weekday = datetime(year, month, day).weekday() + 1
+    weekday = now.weekday() + 1
     with open('./HolidaySetting.json', 'r', encoding='utf8') as fp:
         json_data:dict = json.load(fp)
         try:
-            monthCfg:list = json_data.get(str(year or now.year)).get(str(month or now.month))
+            monthCfg:list = json_data.get(str(now.year)).get(str(now.month))
             #不是周六周天，但是是节假日
-            if (weekday != 6 and weekday != 7):
-                if((day or now.day) in monthCfg.get("yes")):
+            if weekday != 6 and weekday != 7:
+                if now.day in monthCfg.get("yes"):
                     return "False"
             #是周六周天，但是tm的要调休
-            elif ((day or now.day) in monthCfg.get("no")):
+            elif now.day in monthCfg.get("no"):
                 return "True"
             else:
                 return "False"
@@ -30,7 +30,7 @@ def get_workday(year:int, month: int, day: int):
 if __name__ == "__main__":
     # app.debug = False
     with open('./config.json') as fp:
-        if (json.load(fp)["debug"]):
+        if json.load(fp)["debug"]:
             app.run()
         else:
             app.run(host="0.0.0.0", port="8466", debug=False)
